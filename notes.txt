@@ -1,0 +1,11 @@
+DATABASE CREATION
+
+mysql -u root -p
+CREATE USER 'TIAdmin'@'localhost' IDENTIFIED BY 'admin';
+GRANT ALL PRIVILEGES ON *.* TO 'TIAdmin'@'localhost' WITH GRANT OPTION;
+exit;
+
+mysql -u TIAdmin -p
+create database turboimmigration;
+exit;
+mysql -u TIAdmin -p turboimmigration < TurboImmigration.sql

@@ -1,0 +1,71 @@
+{  
+   "pages":[  
+      {  
+         "name":"Age",
+         "elements":[  
+            {  
+               "type":"radiogroup",
+               "name":"GreenCardHolder",
+               "title":"Are you a Green Card holder?",
+               "choices":[  
+                  "Yes",
+                  "No"
+               ]
+            },
+	        {
+	            "name": "GreenCardIssueDate",
+	            "type": "datepicker",
+	            "inputType": "date",
+	            "title": "When did you become a U.S. green card holder (permanent resident)?",
+	            "dateFormat": "mm/dd/yy",
+	            "isRequired": true,
+	            "visibleIf":"{question1} = 'Yes'"
+	        }
+         ],
+         "title":"Tell us about you..."
+      },
+      {  
+         "name":"age2",
+         "elements":[  
+            {  
+               "type":"checkbox",
+               "name":"question2",
+               "title":"Are you 18 or older?",
+               "choices":[  
+                  {  
+                     "value":"item1",
+                     "text":"Yes"
+                  },
+                  {  
+                     "value":"item2",
+                     "text":"No"
+                  }
+               ]
+            }
+         ],
+         "title":"Tell us about you..."
+      },
+      {  
+         "name":"TimeInUS",
+         "elements":[  
+            {  
+               "type":"checkbox",
+               "name":"question3",
+               "title":"In the last 5 years, have you been in the United States for at least half the time (30 months)?",
+               "choices":[  
+                  {  
+                     "value":"item1",
+                     "text":"Yes"
+                  },
+                  {  
+                     "value":"item2",
+                     "text":"No"
+                  }
+               ]
+            }
+         ],
+         "description":"The government requires all applicants to be physically present in the U.S. for at least 30 months over the past 5 years before applying for naturalization. If you’re not sure, put down “Yes” here and we’ll help you calculate the exact number later in the application."
+      }
+   ],
+   "storeOthersAsComment":false
+}
