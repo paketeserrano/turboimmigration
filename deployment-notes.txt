@@ -1,0 +1,48 @@
+https://www.datasciencebytes.com/bytes/2015/02/24/running-a-flask-app-on-aws-ec2/
+
+How to deploy a t2.micro: 
+
+How to ssh to instance: ssh -i ~/.ssh/MyKeyPair.pem ubuntu@3.80.180.64
+
+Create application code folder
+sudo su -
+cd ~
+mkdir hellomigration
+cd hellomigration
+git clone https://github.com/paketeserrano/turboimmigration.git
+sudo ln -sT ~/hellomigration/turboimmigration /var/www/html/hellomigration
+
+chmod +x /root
+chmod +x /root/hellomigration
+chmod +x /root/hellomigration/turboimmigration
+
+---------------
+vi /etc/apache2/sites-enabled/000-default.conf
+Under Document Root
+
+WSGIDaemonProcess hellomigration threads=5
+WSGIScriptAlias / /var/www/html/hellomigration/hellomigration.wsgi
+
+<Directory hellomigration>
+    WSGIProcessGroup hellomigration
+    WSGIApplicationGroup %{GLOBAL}
+    Order deny,allow
+    Allow from all
+</Directory>
+
+
+---------------
+
+Install apache server:
+sudo apt-get update
+sudo apt-get install apache2
+
+Start apache server:
+systemctl start apache2.service
+
+apt install virtualenv
+cd ~/hellomigration/
+virtualenv venv
+source venv/bin/activate
+pip install -r app/requirements.txt
+
