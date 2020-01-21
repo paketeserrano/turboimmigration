@@ -37,12 +37,26 @@ Install apache server:
 sudo apt-get update
 sudo apt-get install apache2
 
+Install mysql:
+sudo apt-get install mysql-server mysql-client
+
+Mysql database creation
+
+mysql -u root -p
+CREATE USER 'TIAdmin'@'localhost' IDENTIFIED BY 'admin';
+GRANT ALL PRIVILEGES ON *.* TO 'TIAdmin'@'localhost' WITH GRANT OPTION;
+exit;
+
+mysql -u TIAdmin -p
+create database turboimmigration;
+exit;
+mysql -u TIAdmin -p turboimmigration < TurboImmigration.sql
+
 Start apache server:
 systemctl start apache2.service
 
 apt install virtualenv
-cd ~/hellomigration/
+cd ~/hellomigration/turboimmigration
 virtualenv venv
 source venv/bin/activate
 pip install -r app/requirements.txt
-
