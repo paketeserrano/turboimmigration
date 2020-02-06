@@ -12,3 +12,17 @@
 	</div>
 </main>
 {% endblock %}
+
+{% block scripts %}
+  {{super()}}
+
+  <!-- survey libs -->
+  <script src="https://unpkg.com/jquery"></script>
+  <script src="https://surveyjs.azureedge.net/1.1.24/survey.jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>    
+  <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet"/>
+  <script src="https://surveyjs.azureedge.net/1.1.24/surveyjs-widgets.js"></script>
+  
+  <script src="../static/js/survey.js"></script>
+  <script> var surveyQuestions = {{ surveyQuestions|tojson }}; </script>
+{% endblock %}

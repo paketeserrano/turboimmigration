@@ -57,6 +57,7 @@ systemctl start apache2.service
 
 apt install virtualenv
 cd ~/hellomigration/turboimmigration
-virtualenv venv
+python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r app/requirements.txt

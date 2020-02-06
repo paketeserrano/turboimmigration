@@ -19,7 +19,6 @@
   </head>
   <body>
 
-    <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="{{ url_for('index') }}"><img src="{{url_for('static', filename='turboimmigration-logo.png')}}" alt="Turbo Immigration"></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,8 +26,12 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('survey') }}">Apply</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Apply</a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <a class="dropdown-item" href="{{ url_for('survey', app='ctz') }}">Citizenship</a>
+                  <a class="dropdown-item" href="{{ url_for('survey', app='mgc') }}">Married Green Card</a>
+                </div>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Happy Customers</a>
@@ -45,12 +48,16 @@
               <li class="nav-item">              
                 <a id="userName" class="nav-link" href="{{ url_for('login') }}">Log In</a>
               </li>
+              <li class="nav-item">              
+                <a id="register" class="nav-link" href="{{ url_for('register') }}">Register</a>
+              </li>
               {% else %}
               <li class="nav-item dropdown">
                 <a id="userName" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Hello,{{current_user.firstname}}</a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#">Profile</a>
-                  <a class="dropdown-item" href="{{ url_for('logout') }}">Log Out</a>
+                  <a class="dropdown-item" href="{{ url_for('user') }}">Profile</a>
+                  <a class="dropdown-item" href="{{ url_for('user') }}">Profile</a>
+                  <a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a>
                 </div>
               </li>
               {% endif %}
@@ -61,7 +68,6 @@
           </form>
         </div>
       </nav>
-    </header>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -78,18 +84,12 @@
 
     {% block content %}{% endblock %}
 
+    {% block scripts %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-    <!-- survey libs -->
-    <script src="https://unpkg.com/jquery"></script>
-    <script src="https://surveyjs.azureedge.net/1.1.24/survey.jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>    
-    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet"/>
-    <script src="https://surveyjs.azureedge.net/1.1.24/surveyjs-widgets.js"></script>
-    <script src="../static/js/survey.js"></script>
+    {% endblock %}
   </body>
 </html>

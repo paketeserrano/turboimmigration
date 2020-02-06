@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.search-section{
+    padding: 2rem;
+}
+.search-input{
+    display: block;
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #55595c;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    height: calc(3rem + 2px) !important;
+    border-radius:0;
+}
+.wrn-btn{
+    width: 100%;
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: capitalize;
+    height: calc(3rem + 2px) !important;
+    border-radius:0;
+}
+
+}
+</style>
+
+<main role="main">
+	<div class="container" style="margin-top:60px">
+		<div class="row">
+	    	<div class="col-sm-12">
+	            <ul class="nav nav-tabs">
+	                <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#openCasesTab">Open Cases</a></li>
+	                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#myCasesTab">My Cases</a></li>
+	                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#notificationsTab">Notifications</a></li>
+	            </ul>
+
+		        <div class="tab-content mt-3">
+		          <div class="tab-pane active" id="openCasesTab">
+
+					<section class="search-section">
+					    <div class="container">
+					        <div class="row">
+					            <div class="col-lg-12">
+					                <div class="row">
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <select class="form-control search-input" id="selectType">
+					                            <option value="">Select Type</option>
+					                            <option value="marriagegreencard">Marriage Green Card</option>
+					                            <option value="citizenship">Citizenship</option>
+					                        </select>
+					                    </div>
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <select class="form-control search-input" id="selectStatus">
+					                            <option value="">Select Status</option>
+					                            <option value="NEW">NEW</option>
+					                            <option value="ON REVIEW">ON REVIEW</option>
+					                        </select>
+					                    </div>
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <input type="text" class="form-control search-input" placeholder="Client First Name" id="clientFirstName">
+					                    </div>
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <input type="text" class="form-control search-input" placeholder="Client Last Name" id="clientLastName">
+					                    </div>
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <input type="text" class="form-control search-input" placeholder="Owner First Name" id="ownerFirstName">
+					                    </div>
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0">
+					                        <input type="text" class="form-control search-input" placeholder="Owner Last Name" id="ownerLastName">
+					                    </div>  
+					                </div>
+					                <div class="row" style="text-align:center">
+					                    <div class="col-lg-2 col-md-2 col-sm-12 p-0" style="display:inline-block;text-align: center">
+					                        <button type="button" class="btn btn-danger wrn-btn text-center" id="searchButton">Search</button>
+					                    </div>
+					                </div>
+					            </div>
+					        </div>
+					    </div>
+					</section>		
+
+					<div class="table-responsive">
+						<table class="table table-striped">
+						  <thead>
+						    <tr>
+						      <th scope="col">id</th>
+						      <th scope="col">type</th>
+						      <th scope="col">client</th>
+						      <th scope="col">status</th>
+						      <th scope="col">owner</th>
+						      <th scope="col">actions</th>
+						    </tr>
+						  </thead>
+						  <tbody id=searchResults>
+						  </tbody>
+						</table>
+					</div>
+		          </div>
+
+		          <div class="tab-pane" id="myCasesTab">
+						<table class="table table-striped">
+						  <thead>
+						    <tr>
+						      <th scope="col">case #</th>
+						      <th scope="col">type</th>
+						      <th scope="col">client</th>
+						      <th scope="col">status</th>
+						      <th scope="col">actions</th>
+						    </tr>
+						  </thead>
+						  <tbody id=searchResults>
+						  	{% for filecase in staffcases %}
+						  		<tr>
+						  		<td scope="row"><a href="{{ url_for('getFileCaseForStaff', filecaseid=filecase['id']) }}">{{ filecase['id'] }}</a></td>
+						  		<td>{{ filecase['type'] }}</td>
+						  		<td>{{ filecase['clientname'] }}</td>
+						  		<td>{{ filecase['status'] }}</td>
+						  		<td></td>
+						  		</tr>
+						  	{% endfor %}
+						  </tbody>
+						</table>
+		          </div>
+		          <div class="tab-pane" id="notificationsTab">
+
+		          </div>
+		        </div>
+		    </div>
+	    </div>    
+	</div>
+</main>
+
+<!-- Modal for assigning file case to staff -->
+<div class="modal" tabindex="-1" role="dialog" id="assignFileCaseToStaff">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Assign File Case</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="assignFileCaseToStaffContent">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="assignFileCaseToStaffButton">Assign</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="../static/js/dashboard.js"></script>	
+  <script> var staffCases = {{ staffcases|tojson }}; </script>
+{% endblock %}

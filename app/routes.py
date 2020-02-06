@@ -6,6 +6,7 @@ import app.db as DBLayer
 import json
 from app.forms import RegistrationForm
 from werkzeug.urls import url_parse
+import os
 
 @app.route('/')
 @app.route('/index')
@@ -51,9 +52,60 @@ def register():
 		return redirect(url_for('login'))
 	return render_template('register.html', title='Register', form=form)
 
-@app.route('/survey')
+@login_required
+@app.route('/user', methods=['GET'])
+def user():
+	db = DBLayer.DB()
+
+	# User info
+	user = db.getUser(current_user.username)
+	userDict = {}
+	userDict['id'] = user.id
+	userDict['first'] = user.firstname
+	userDict['last'] = user.lastname
+	userDict['username'] = user.username
+	userDict['email'] = user.email
+
+	# Get cases info
+	userFileCases = db.getUserFileCases(user.id)
+	for fileCase in userFileCases:
+		fileCaseSurveys = db.getSurveys(fileCase['id'])
+		fileCaseItems = db.getItems(fileCase['id'])
+		fileCase['surverys'] = fileCaseSurveys
+		fileCase['items'] = fileCaseItems
+
+	print("------------------------------------------")
+	print(json.dumps(userFileCases))
+
+	return render_template('user.html', title='User Area', user=userDict, filecases=json.dumps(userFileCases))
+
+@app.route('/getSurveyModel',methods=['GET'])
+def getSurveyModel(application = None):
+	if application == None:
+		application = request.args.get('app')
+		
+	surveyModel = {}
+	if application == 'ctz':
+		surveyName = 'U.S. Citizenship'
+		surveyModelFilePath = os.path.join(app.root_path, 'static/json/citizenship.json')
+		with open(surveyModelFilePath) as json_file:
+		    surveyModel = json.load(json_file)
+	elif application == 'mgc':
+		surveyName = 'Marriage Green Card'
+		surveyModelFilePath = os.path.join(app.root_path, 'static/json/marriage.json')
+		with open(surveyModelFilePath) as json_file:
+		    surveyModel = json.load(json_file)
+
+	return json.dumps(surveyModel)
+
+@app.route('/survey',methods=['GET'])
 @app.route("/survey/<surveyId>",methods=['GET'])
 def survey(surveyId = None):
+	application = request.args.get('app')
+	print("-----------------application: " + application)
+	surveyName = ''
+	surveyModel = getSurveyModel(application)
+
 	survey = '{}'
 	if surveyId != None:
 		db = DBLayer.DB()
@@ -65,7 +117,7 @@ def survey(surveyId = None):
 
 	print("--------- Survey data: " + survey)
 
-	return render_template('survey.html', title = 'Complete Survey', surveyName = 'U.S. Citizenship', surveyData = json.dumps(surveyData))
+	return render_template('survey.html', title = 'Complete Survey', surveyName = surveyName, surveyData = json.dumps(surveyData), surveyQuestions = surveyModel)
 
 @app.route("/saveSurvey",methods=['GET','POST'])
 def saveSurvey():
@@ -74,19 +126,85 @@ def saveSurvey():
 	surveyData = payload['survey']
 	print("payload: " + json.dumps(payload))
 	surveyId = payload['surveyId']
+	surveyStatus = payload['status']
 	if surveyId != -1:
+		# Updating existing survey
 		print("Updating survey " + str(id))
 		surveyId = payload['surveyId']
 		db = DBLayer.DB()
-		db.updateSurvey(surveyData, surveyId)
+		db.updateSurvey(surveyData, surveyId,surveyStatus)
 	else:
+		#Creating new survey
 		print("Saving the survey...")
 		print("payload['survey']: " + surveyData)
 		db = DBLayer.DB()
-		caseId = db.createCase(current_user,payload['caseType'])
-		surveyId = db.createSurvey(surveyData,caseId,payload['surveyType'])
+		caseId = db.createFileCase(current_user,payload['caseType'],"NEW")
+		surveyId = db.createSurvey(surveyData,caseId,payload['surveyType'], surveyStatus)
 		print("Survey saved")
 
-	print("caseId; " + str(caseId))
 	print("surveyId; " + str(surveyId))
 	return json.dumps({'surveyId': surveyId})
+
+@app.route("/dashboard",methods=['GET','POST'])
+def dashboard():
+	db = DBLayer.DB()
+	staffId = current_user.id
+	staffcases = db.getStaffFileCases(staffId)
+	print("++++++++++++++")
+	print(staffcases)
+	print("++++++++++++++")
+	return render_template('dashboard.html', title="Dashboard", staffcases=staffcases)
+
+@app.route("/getFileCases",methods=['GET'])
+def getFileCases():
+	search_params = request.data 
+	
+	print('type: ' + str(request.args.get('type')))
+	print('status: ' + str(request.args.get('status')))
+	print('ownerFirstName: ' + str(request.args.get('ownerfirst')))
+	print('ownerLastName: ' + str(request.args.get('ownerlast')))
+	print('clientFirstName: ' + str(request.args.get('clientfirst')))
+	print('clientLastName: ' + str(request.args.get('clientlast')))
+
+	clientfirst = request.args.get('clientfirst')
+	clientlast = request.args.get('clientlast')
+	ownerfirst = request.args.get('ownerfirst')
+	ownerlast = request.args.get('ownerlast')
+	fileType = request.args.get('type')
+	status = request.args.get('status')
+	db = DBLayer.DB()
+	filecases = db.getFileCases(clientfirst,clientlast,ownerfirst,ownerlast,fileType,status)
+	return json.dumps(filecases)
+
+@app.route("/getStaffUsers",methods=['GET'])
+def getStaffUsers():
+	db = DBLayer.DB()
+	return json.dumps(db.getStaffUsers())
+
+@app.route("/assignFileCaseToOwner",methods=['GET','POST'])
+def assignFileCaseToOwner():
+	data_received = request.get_json()
+	db = DBLayer.DB()
+	response = db.assignFileCaseToOwner(data_received['filecaseid'], data_received['ownerid'])
+	return json.dumps(response)
+
+@app.route("/getFileCaseForStaff/<filecaseid>",methods=['GET'])
+def getFileCaseForStaff(filecaseid):
+	db = DBLayer.DB()
+
+	filecase = db.getFileCase(filecaseid)
+	# Just get the username from this object. It contains the password
+	client = db.getUserWithId(filecase['clientid'])
+	user = db.getUser(client.username)
+	userDict = {}
+	userDict['id'] = user.id
+	userDict['first'] = user.firstname
+	userDict['last'] = user.lastname
+	userDict['username'] = user.username
+	userDict['email'] = user.email
+
+	surveys = db.getSurveys(filecase['id'])
+
+	print(surveys)
+
+	return render_template('filecase.html', title="File Case", user=userDict, filecase=filecase, surveys=surveys)

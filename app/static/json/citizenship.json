@@ -1,0 +1,200 @@
+{
+ "pages": [
+  {
+   "name": "Initial",
+   "elements": [
+    {
+     "type": "html",
+     "name": "DE_explanation",
+     "html": "<p>Next you will answer a few simple question to determine if you are elegible</p>"
+    }
+   ],
+   "title": "Determine Elegibility"
+  },
+  {
+   "name": "Age",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "GreenCardHolder",
+     "title": "Are you a Green Card holder?",
+     "choices": [
+      "Yes",
+      "No"
+     ]
+    },
+    {
+        "name": "GreenCardIssueDate",
+        "type": "datepicker",
+        "inputType": "date",
+        "title": "When did you become a U.S. green card holder (permanent resident)?",
+        "dateFormat": "mm/dd/yy",
+        "visibleIf":"{GreenCardHolder} = 'Yes'",
+        "isRequired": true            
+    }
+   ],
+   "title": "Tell us about you..."
+  },
+  {
+   "name": "age2",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "age_question",
+     "title": "Are you 18 or older?",
+     "choices": [
+      "Yes",
+      "No"
+     ]
+    }
+   ],
+   "title": "Tell us about you..."
+  },
+    {
+   "name": "page4",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "halfTimeInUS",
+     "title": "In the last 5 years, have you been in the United States for at least half the time (30 months)? ",
+     "choices": [
+      {
+       "value": "Yes",
+       "text": "Yes"
+      },
+      {
+       "value": "No",
+       "text": "No"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "outside_us",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "outside_us_question",
+     "title": "Have you ever been outside of the U.S. for more than one year since becoming a green card holder?",
+     "choices": [
+      {
+       "value": "Yes",
+       "text": "Yes"
+      },
+      {
+       "value": "No",
+       "text": "No"
+      }
+     ]
+    }
+   ],
+   "title": "Elegibility"
+  },
+  {
+   "name": "page3",
+   "elements": [
+    {
+        "name": "WhenDidYouReturnToUS",
+        "type": "datepicker",
+        "inputType": "date",
+        "title": "For your most recent trip abroad lasting one year or longer, when did you return to the U.S.?",
+        "dateFormat": "mm/dd/yy",
+        "isRequired": true            
+    }
+   ],
+   "visibleIf": "{outside_us_question} = 'Yes'"
+  },
+  {
+   "name": "page2",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "QualifyForFinancialHelp",
+     "title": "The government may reduce or waive its fees for applicants with low income or financial hardship . Would you qualify for this program? If you do, we will ask for details later to help you get the benefit you deserve. ",
+     "choices": [
+      {
+       "value": "Yes",
+       "text": "I might qualify"
+      },
+      {
+       "value": "No",
+       "text": "I would not qualify"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "page1",
+   "elements": [
+    {
+     "type": "html",
+     "name": "question6",
+     "html": "You are too young. \n\nCall you mom and come back again"
+    },
+    {
+     "type": "radiogroup",
+     "name": "exit1",
+     "visible": false,
+     "title": "Finish the survey?",
+     "defaultValue": "Yes",
+     "choices": [
+      "Yes",
+      "No"
+     ]
+    }
+   ],
+   "visible": false,
+   "visibleIf": "{age_question} = \"No\" or returnedLessThanFiveYearsAgo({WhenDidYouReturnToUS}) or {halfTimeInUS} = \"No\" ",
+   "navigationButtonsVisibility": "hide"
+  },
+  {
+   "name": "you_are_elegible",
+   "elements": [
+    {
+     "type": "html",
+     "name": "you_are_elegible_message",
+     "html": "Congratulations, you are elegible!. \n\nPlease keep filling the questions, you are clicks again to finish your application"
+    }
+   ]
+  },
+  {
+   "name": "page5",
+   "elements": [
+    {
+     "type": "panel",
+     "name": "FullNamePanel",
+     "elements": [
+      {
+       "type": "text",
+       "name": "FirstName",
+       "title": "First Name"
+      },
+      {
+       "type": "text",
+       "name": "MiddleName",
+       "title": "Middle Name"
+      },
+      {
+       "type": "text",
+       "name": "LastName",
+       "title": "Last Name"
+      }
+     ],
+     "title": "Please enter your full name below"
+    }
+   ]
+  }
+ ],
+ "triggers": [
+  {
+   "type": "complete",
+   "value": "Yes",
+   "name": "exit1"
+  }
+ ],
+"showProgressBar": "top",
+"storeOthersAsComment": false,
+"surveyType": "citizenship"
+}

@@ -1,0 +1,69 @@
+{
+ "surveyType":"marriagegreencard",
+ "pages": [
+  {
+   "name": "Married",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "MarriedQuestion",
+     "title": "Are you currently married?",
+     "choices": [
+      {
+       "value": "Yes",
+       "text": "Yes"
+      },
+      {
+       "value": "No",
+       "text": "No"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Sponsor",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "SponsorQuestion",
+     "title": "Are you the sponsor or beneficiary of this green card application? ",
+     "choices": [
+      {
+       "value": "Sponsor",
+       "text": "Sponsor (U.S. citizen or green card holder)"
+      },
+      {
+       "value": "Beneficiary",
+       "text": "Beneficiary (spouse applying for a green card)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "CurrentStatus",
+   "elements": [
+    {
+     "type": "radiogroup",
+     "name": "CurrentStatusQuestion",
+     "title": "What is your current status in the United States?",
+     "choices": [
+      {
+       "value": "citizen",
+       "text": "U.S. citizen"
+      },
+      {
+       "value": "greenCard",
+       "text": "U.S. green card holder (permanent resident)"
+      },
+      {
+       "value": "other",
+       "text": "Other"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
