@@ -3,6 +3,7 @@ import json
 from app.models import User
 from werkzeug.security import generate_password_hash
 from app import login
+from app import blog_engine
 
 class DB:
     
@@ -190,6 +191,21 @@ class DB:
 
         return surveys
 
+    def getFileCaseItems(self,filecaseid):
+        self.cursor.execute('SELECT id,type,caseid,itempath,name FROM caseitem WHERE caseid=' + str(filecaseid))
+        rows = self.cursor.fetchall()
+        caseitems = []
+        for row in rows:
+            caseitem = {}
+            caseitem['id'] = row[0]
+            caseitem['type'] = row[1]
+            caseitem['caseid'] = row[2]
+            caseitem['itempath'] = row[3]
+            caseitem['name'] = row[4]
+            caseitems.append(caseitem)
+
+        return caseitems
+
     def getItems(self,filecaseid):
         self.cursor.execute('SELECT id,name,caseid,status,type FROM caseitem WHERE caseid=' + str(filecaseid))
         rows = self.cursor.fetchall()
@@ -204,6 +220,23 @@ class DB:
             caseitems.append(caseitem)
 
         return caseitems
+
+    def getFileCaseItem(self,caseitemid):
+        self.cursor.execute('SELECT id,name,caseid,status,type,itempath FROM caseitem WHERE id=' + str(caseitemid))
+        row = self.cursor.fetchone()
+        caseitem = {}
+        caseitem['id'] = row[0]
+        caseitem['name'] = row[1]
+        caseitem['caseid'] = row[2]
+        caseitem['status'] = row[3]
+        caseitem['type'] = row[4]
+        caseitem['itempath'] = row[5]
+
+        return caseitem
+
+    def deleteCaseItem(self,caseId):  
+        self.cursor.execute('DELETE from caseitem WHERE id = ' + str(caseId) )  
+        self.session.commit() 
 
     def getFileCases(self,clientfirst = None,clientlast = None,ownerfirst = None,ownerlast = None,fileType = None,fileStatus = None):
         whereclause = ""
@@ -313,8 +346,15 @@ class DB:
         self.session.commit()   
         return {"status":"success"} 
 
+    def createFileCaseItem(self,caseid,type,fullfilename,filename):
+        query = "INSERT INTO caseitem (caseid,type,itempath,name) VALUES (" + caseid + ",'" + type + "','" + fullfilename + "','" + filename + "')"
+        self.cursor.execute(query)
+        self.session.commit() 
+        return self.cursor.lastrowid 
+
 
 @login.user_loader
+@blog_engine.user_loader
 def load_user(id): 
     user = None 
     print("---------------id: " + id)

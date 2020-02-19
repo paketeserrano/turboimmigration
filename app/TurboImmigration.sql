@@ -46,7 +46,8 @@ CREATE TABLE `caseitem` (
 	`name` varchar(200) DEFAULT NULL,
 	`caseid` int(11) DEFAULT NULL,  
 	`status` varchar(200) DEFAULT NULL,
-	`type` varchar(200) DEFAULT NULL, /* If it's a survey then surveyid field should be filled otherwise it will be null */
+	`type` varchar(200) DEFAULT NULL,
+	`itempath` varchar(400) DEFAULT NULL,
 	CONSTRAINT `CaseId_ibfk_2` FOREIGN KEY (`caseid`) REFERENCES `filecase` (`id`),
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

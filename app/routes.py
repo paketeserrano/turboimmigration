@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, jsonify
+from flask import render_template, flash, redirect, url_for, request, jsonify, send_file
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app
 from app.forms import LoginForm
@@ -7,6 +7,7 @@ import json
 from app.forms import RegistrationForm
 from werkzeug.urls import url_parse
 import os
+from werkzeug.utils import secure_filename
 
 @app.route('/')
 @app.route('/index')
@@ -195,16 +196,97 @@ def getFileCaseForStaff(filecaseid):
 	filecase = db.getFileCase(filecaseid)
 	# Just get the username from this object. It contains the password
 	client = db.getUserWithId(filecase['clientid'])
-	user = db.getUser(client.username)
-	userDict = {}
-	userDict['id'] = user.id
-	userDict['first'] = user.firstname
-	userDict['last'] = user.lastname
-	userDict['username'] = user.username
-	userDict['email'] = user.email
+	dbUser = db.getUser(client.username)
+	user = {}
+	user['id'] = dbUser.id
+	user['first'] = dbUser.firstname
+	user['last'] = dbUser.lastname
+	user['username'] = dbUser.username
+	user['email'] = dbUser.email
 
 	surveys = db.getSurveys(filecase['id'])
+	filecaseitems = db.getFileCaseItems(filecase['id'])
 
 	print(surveys)
 
-	return render_template('filecase.html', title="File Case", user=userDict, filecase=filecase, surveys=surveys)
+	return render_template('filecase.html', title="File Case", user=user, filecase=filecase, surveys=surveys, caseitems = filecaseitems)
+
+@app.route("/getFileCase/<filecaseid>",methods=['GET'])
+def getFileCase(filecaseid):
+	db = DBLayer.DB()
+
+	filecase = db.getFileCase(filecaseid)
+	# Just get the username from this object. It contains the password
+	client = db.getUserWithId(filecase['clientid'])
+	dbUser = db.getUser(client.username)
+	user = {}
+	user['id'] = dbUser.id
+	user['first'] = dbUser.firstname
+	user['last'] = dbUser.lastname
+	user['username'] = dbUser.username
+	user['email'] = dbUser.email
+
+	surveys = db.getSurveys(filecase['id'])
+	filecaseitems = db.getFileCaseItems(filecase['id'])
+
+	print(surveys)
+
+	return render_template('filecase.html', title="File Case", user=user, filecase=filecase, surveys=surveys, caseitems = filecaseitems)
+
+@app.route("/case/<type>/<id>",methods=['GET'])
+def showCase(type = None, id = None):
+	print("-------type: " + type)
+	print("-------id: " + id)
+
+	if type == 'citizenship':
+		return render_template('citizenship-case.html')
+	else:
+		return render_template('married-green-card-case.html')
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_FILE_EXTENSIONS']
+
+@app.route('/uploadCaseFileItem', methods=['POST'])
+def uploadCaseFileItem():
+	file = request.files['file_data']
+	fcid = request.form['fileCaseId']
+	fcitemtype = request.form['type']
+
+	caseItemRootPath = app.root_path + '/case_item/' + str(fcid)
+	if not os.path.exists(caseItemRootPath):
+		os.makedirs(caseItemRootPath)
+
+	fullfilename = ''
+	filename = ''
+	if file and allowed_file(file.filename):
+		filename = secure_filename(file.filename)
+		fullfilename = os.path.join(caseItemRootPath, filename)
+		file.save(fullfilename)
+
+	db = DBLayer.DB()
+	caseItemIndex = db.createFileCaseItem(fcid,fcitemtype,fullfilename,filename)
+	response = {'name': filename,
+				'id': caseItemIndex}
+	return json.dumps(response)
+
+@app.route('/deleteCaseItem', methods=['POST'])
+def deleteCaseItem():
+	data_received = request.get_json()
+	#data_received = json.loads(request.data) 
+	db = DBLayer.DB()
+	db.deleteCaseItem(data_received['caseItemId'])
+	return json.dumps({"caseItemId":data_received['caseItemId']})
+
+@app.route('/getCaseItem/<id>',methods=['GET'])
+def getCaseItem(id = None):
+	# TODO: - Error handling -Make sure only owners of the case can get view this file
+	if id != None:
+		db = DBLayer.DB()
+		filecaseitem = db.getFileCaseItem(id)
+		print(filecaseitem['itempath'])
+		print(filecaseitem['name'])
+		try:
+			return send_file(filecaseitem['itempath'], attachment_filename=filecaseitem['name'])
+		except Exception as e:
+			return str(e)

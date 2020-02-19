@@ -24,7 +24,7 @@ $(document).ready(function() {
     for(i = 0; i < userCases.length; ++i){
         userCase = userCases[i];
         caseHtml += '<div class="card border-primary mb-3" >';
-        caseHtml += '<div class="card-header">' + userCase['type'] + '</div>';
+        caseHtml += '<div class="card-header"><a href="/getFileCase/' + userCase['id'] + '" >Citizenship</a></div>';
         caseHtml += '<div class="card-body text-primary">';
         caseHtml += '<h5 class="card-title">You have updates in your case</h5>';
         caseHtml += '<p class="card-text">Quick sample text to create the card title and make up the body of the card content.</p>';
