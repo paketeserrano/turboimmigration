@@ -130,7 +130,7 @@ class DB:
 
     def createFileCase(self,user,type,status):
         print("-----------filecase ID: " + str(user.id))
-        query = "INSERT INTO filecase (type,clientid,status) VALUES ('" + type + "'," + str(user.id) + "'," + status + ")"
+        query = "INSERT INTO filecase (type,clientid,status) VALUES ('" + type + "'," + str(user.id) + ",'" + status + "')"
         print("----------query: " + query)
         self.cursor.execute(query)
 

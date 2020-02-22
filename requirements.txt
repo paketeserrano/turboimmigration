@@ -11,7 +11,6 @@ itsdangerous==1.1.0
 Jinja2==2.10.3
 Markdown==3.2
 MarkupSafe==1.1.1
-pkg-resources==0.0.0
 PyMySQL==0.9.3
 python-slugify==4.0.0
 shortuuid==0.5.0
