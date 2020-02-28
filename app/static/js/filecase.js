@@ -2,6 +2,7 @@ var surveys;
 var selectedCaseItemName;
 var selectedCaseItemId = -1;
 var rowToDelete;
+var chat;
 
 function downloadSurvey(surveyId)
 {
@@ -278,7 +279,57 @@ function prepareDeleteCaseItem(domElement){
    $('#deleteCaseItemText').html(myhtml); 
 }
 
+$('#sendChatMessage').on('click', function() {
+	console.log("-----------------------");
+	console.log($('#chatMessage').val());
+	console.log("-----------------------");
+
+	console.log("current_user_name: " + current_user_name);
+
+	message = $('#chatMessage').val();
+	// Add the message with sending message
+	var dateNow = new Date(Date.now());
+	console.log(dateNow);
+	messageTime = dateNow.getFullYear() + "-" + (dateNow.getMonth()+1) + "-" + dateNow.getDay(); 
+	html = ""
+	html += '<div class="row justify-content-end">';
+	html += '<div class="card message-card bg-lightblue m-1">';
+	html += '<div class="card-body p-2">';
+	html += '<span class="mx-2">' + message + '</span>';
+	html += '<span class="float-right mx-1"><small>' + messageTime + '</i></small></span>';
+	html += '<span class="float-right mx-1"><small>' + current_user_name + '</i></small></span>';
+	html += '</div>';
+	html += '</div>';
+	html += '</div>';
+
+	newChatMessage = $('#chatMessage').val();
+	$('#chatMessage').val("");
+	$('#chatMessagesList').append(html);
+	$('#chatMessagesList').animate({scrollTop: $('#chatMessagesList').prop("scrollHeight")}, 500);
+
+    $.ajax({
+        type: 'POST',
+        url: '/newChatMessage',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            'chatid': chat['id'],
+            'message': newChatMessage,
+            'userid': current_user_id,
+            'username':current_user_name
+        }),
+        success:function(res){
+            var data=JSON.parse(res);
+        },
+        error: function(returned_value){
+            console.log("Error sending the chat message. Please check server logs")
+        }
+    })
+})
+
 $(document).ready(function() {
+
+	console.log("----------------- current_user_id:");
+	console.log(current_user_id);
 
 	//// Citizenship Docs////
 
@@ -350,4 +401,66 @@ $(document).ready(function() {
 		domElement = $(this);
 		prepareDeleteCaseItem(domElement);      
 	}); 
+
+
+	// Populate notifications
+    $.ajax({
+        type: 'GET',
+        url: '/getChat',
+        data: {'caseid':filecaseInfo['id']},
+        success:function(data) {
+        	chat =JSON.parse(data);
+        	console.log(chat);
+        	renderChat(chat);
+        },
+        error: function(data) {
+        	console.log(data);
+        },
+        contentType: 'application/json;charset=UTF-8'
+    })
+
 })
+
+function renderChat(chat){
+	console.log("-------")
+	console.log(chat);
+	console.log("-------")
+	chatMessages = chat['messages'];
+	console.log("-------")
+	console.log(chatMessages);
+	console.log("-------")
+	console.log("current_user_id: " + current_user_id);
+	html = "";
+	for (index = 0; index < chatMessages.length; ++index){
+		message = chatMessages[index];
+		console.log("++++++++++++++++++++++")
+		console.log(message);
+		console.log("++++++++++++++++++++++")
+		if(message['userid'] == current_user_id){
+			html += '<div class="row justify-content-end">';
+			html += '<div class="card message-card bg-lightblue m-1">';
+			html += '<div class="card-body p-2">';
+			html += '<span class="mx-2">' + message['message'] + '</span>';
+			html += '<span class="float-right mx-1"><small>' + message['time'] + '</small></span>';
+			html += '<span class="float-right mx-1"><small>' + message['username'] + '</i></small></span>'
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+		}
+		else{
+			html += '<div class="row">';
+			html += '<div class="card message-card m-1">';
+			html += '<div class="card-body p-2">';
+			html += '<span class="mx-2">' + message['message'] + '</span>';
+			html += '<span class="float-right mx-1"><small>' + message['time'] + '</i></small></span>';
+			html += '<span class="float-right mx-1"><small>' + message['username'] + '</i></small></span>'
+			html += '</div>';
+			html += '</div>';
+			html += '</div>';
+		}
+	}
+
+	console.log(html);
+	$('#chatMessagesList').append(html);
+	$('#chatMessagesList').animate({scrollTop: $('#chatMessagesList').prop("scrollHeight")}, 500);
+}

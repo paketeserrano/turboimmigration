@@ -290,3 +290,18 @@ def getCaseItem(id = None):
 			return send_file(filecaseitem['itempath'], attachment_filename=filecaseitem['name'])
 		except Exception as e:
 			return str(e)
+
+@app.route("/getChat",methods=['GET'])
+def getChat():	
+	caseid = str(request.args.get('caseid'))
+	print("caseid: " + str(caseid))
+	db = DBLayer.DB()
+	chat = db.getFileCaseChat(caseid)
+	return json.dumps(chat,default=str)
+
+@app.route("/newChatMessage",methods=['POST'])
+def newChatMessage():	
+	data_received = request.get_json()
+	db = DBLayer.DB()
+	db.addChatMessage(data_received['chatid'],data_received['message'],data_received['userid'],data_received['username'])
+	return '{"status":"ok"}'

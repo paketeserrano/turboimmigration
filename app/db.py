@@ -4,6 +4,7 @@ from app.models import User
 from werkzeug.security import generate_password_hash
 from app import login
 from app import blog_engine
+import datetime
 
 class DB:
     
@@ -135,7 +136,12 @@ class DB:
         self.cursor.execute(query)
 
         self.session.commit() 
-        return self.cursor.lastrowid   
+        newFileCaseId = self.cursor.lastrowid
+        query = 'INSERT INTO chat (caseid) VALUES (' + str(newFileCaseId) + ')'
+        self.cursor.execute(query)
+        self.session.commit()
+
+        return newFileCaseId
 
     def getUserFileCases(self, userid):
         self.cursor.execute('SELECT id,type,clientid,status,ownerid FROM filecase WHERE clientid = ' + str(userid))
@@ -174,6 +180,40 @@ class DB:
         fileCase['ownerid'] = fileCaseResponse[4]
 
         return fileCase
+
+    def getFileCaseChat(self,caseid):
+        self.cursor.execute('SELECT id,caseid,lastupdated,lastupdatedby FROM chat WHERE caseid = ' + str(caseid))
+        response = self.cursor.fetchone()
+        chat = {}
+        chat['id'] = response[0]
+        chat['caseid'] = response[1]
+        chat['lastupdated'] = response[2]
+        chat['lastupdatedby'] = response[3]
+        chat['messages'] = []
+        self.cursor.execute('SELECT id,chatid,userid,username,message,time FROM chatmessage WHERE chatid = ' + str(chat['id']))
+        rows = self.cursor.fetchall()
+        for row in rows:
+            message = {}
+            message['id'] = row[0]
+            message['chatid'] = row[1]            
+            message['userid'] = row[2]
+            message['username'] = row[3]
+            message['message'] = row[4]
+            message['time'] = row[5]
+            chat['messages'].append(message)
+
+        return chat
+
+    def addChatMessage(self,chatid,message,userid,username):
+        now = datetime.datetime.now()
+        print("-------------message: " + message)
+        self.cursor.execute("INSERT INTO chatmessage (chatid, message, userid,time, username) VALUES (%s, %s, %s,%s,%s)",(chatid, message, userid, now,username))
+        self.session.commit() 
+        newChatMessageId = self.cursor.lastrowid
+
+        self.cursor.execute('UPDATE chat SET lastupdated ="' + now.strftime('%Y-%m-%d %H:%M:%S') + '", lastupdatedby =' + str(userid) + ' WHERE id=' + str(chatid))
+        self.session.commit()
+        return newChatMessageId
 
 
     def getSurveys(self,filecaseid):
@@ -333,9 +373,15 @@ class DB:
 
             fileCase['status'] = row[3]
             ownerid = row[4]
-            self.cursor.execute('SELECT firstname,lastname FROM user WHERE id=' + str(ownerid))
-            firstlast = self.cursor.fetchone()
-            fileCase['ownername'] = firstlast[0] + ' ' + firstlast[1]
+            filecaseownerName = ''
+            if ownerid != None:
+                self.cursor.execute('SELECT firstname,lastname FROM user WHERE id=' + str(ownerid))
+                firstlast = self.cursor.fetchone()
+                filecaseownerName = firstlast[0] + ' ' + firstlast[1]
+            else:
+                filecaseownerName = 'unassigned'
+                
+            fileCase['ownername'] = filecaseownerName
 
             fileCases.append(fileCase)
 
